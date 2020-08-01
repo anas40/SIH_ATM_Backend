@@ -37,7 +37,6 @@ router.get('/compliance/:id',auth, async (req, res) => {
     }
 })
 
-
 //object for upload customization.....
 const upload = multer({
     limits: {

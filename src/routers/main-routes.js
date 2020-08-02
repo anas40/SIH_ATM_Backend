@@ -226,9 +226,10 @@ router.post('/searchorders', auth , async (req,res) => {
         // object for filter options...
         const filterOptions = {}
 
-        // add createdAt date filter if date query is present
+        //add createdAt date filter if date query is present
         if (req.body.date != "All" && req.body.date) {
-            filterOptions.createdAt = req.body.date
+            const date = new Date(req.body.date)
+            filterOptions.createdAt = date
         }
 
         // add completed filter if completed query is present..
@@ -275,6 +276,36 @@ router.post('/searchorders', auth , async (req,res) => {
     }   
     catch (e) {
         res.status(404).send({error: "Could not query orders"})
+    }
+})
+
+
+router.post('/sethealth', auth, async (req,res) => {
+    try{
+        const equipment = await Equipment.findById(req.body.equipmentId)
+        const voltage = req.body.voltage
+        const current = req.body.current
+        const temperature = req.body.temperature
+        if(voltage!=equipment.voltage && current!=equipment.current && temperature!=equipment.temperature) {
+            equipment.stateOfEquipment = "Scrap"
+        }
+        else if((voltage!=equipment.voltage && current!=equipment.current) || 
+                (voltage!=equipment.voltage && temperature!=equipment.temperature) || 
+                (current != equipment.current && temperature!=equipment.temperature)) {
+            equipment.stateOfEquipment = "Poor"     
+        }
+        else if(voltage!=equipment.voltage || current!=equipment.current || temperature!=equipment.temperature) {
+            equipment.stateOfEquipment = "Fair"
+        }
+        else{
+            equipment.stateOfEquipment = "Healthy"
+        }
+
+        await equipment.save()
+        res.status(200).send()
+    }
+    catch(e){
+        res.status(401).send()
     }
 })
 

@@ -20,6 +20,7 @@ router.get('/compliance/:id',auth, async (req, res) => {
             }
         }).execPopulate()
         console.log(order)
+
         const data = {
             tasklist: order.task.tasks,
             equipmentCode: order.task.maintenancePlan.equipment.equipmentCode,
@@ -27,10 +28,14 @@ router.get('/compliance/:id',auth, async (req, res) => {
             description: order.work,
             location: order.location,
             _id: order._id,
-            cycle: order.cycle
+            cycle: order.cycle,
+            deadlineDate: order.deadlineDate,
+            assignmentDate: order.assignmentDate,
+            generationDate: order.generationDate
         }
         res.status(200).send(data)
-    } catch (e) {
+    } 
+    catch (e) {
         res.status(404).send({
             error: 'Could not find the requested resource'
         })
@@ -80,7 +85,8 @@ router.post('/submit-compliance/:id',auth, upload.array('workImage', 20), async 
         await order.save()
         res.status(201).send('files uploaded')
 
-    } catch (e) {
+    } 
+    catch (e) {
         res.status(415).send({
             error: 'Error uploading the file. Upload only in jpg, jpeg or png format'
         })

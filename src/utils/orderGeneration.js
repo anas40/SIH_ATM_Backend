@@ -4,6 +4,8 @@ const MaintenancePlan = require('../models/maintenance-plan')
 const Order = require('../models/orders')
 const cron = require('node-cron')
 const timespan = require('timespan')
+const sendMessage = require('../messaging/send_email')
+const sendSMS = require('../messaging/send_sms')
 
 //count of order number
 var num = 2231
@@ -68,6 +70,25 @@ const orderGeneration = async()=>{
             }
         }
     })
+
+
+    cron.schedule('*/10 * * * * *', async () => {
+        const orders = await Order.find()
+
+        for(let i=0; i<orders.length; i++) {
+            const currentDate = Date.now()
+            const deadline = Date.parse(orders[i].deadlineDate)
+            let tspan = new timespan.TimeSpan(deadline - currentDate)
+            if(tspan.totalDays() >= 0 && tspan.totalDays() <= 1 && orders[i].mailedAlert=="No" && orders[i].engineerStatus!="completed"){
+                // sendMessage('anasmd4u@gmail.com', 'One day left for order to be completed',
+                //             'Please get the order completed. Only one day to go before deadline')
+                // sendSMS('+919835555474', 'Please get the order completed. Only one day to go before deadline')
+                // orders[i].mailedAlert = "Yes"
+                // await orders[i].save()
+            }
+        }
+    })
 }
+
 
 module.exports = orderGeneration

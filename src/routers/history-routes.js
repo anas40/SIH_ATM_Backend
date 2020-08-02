@@ -13,6 +13,11 @@ const auth = require('../auth/auth')
 router.get('/get-orders', auth, async(req,res)=>{
     try{
         const list = await Order.find()
+
+        for( let i=0; i<list.length; i++ ) {
+            list[i].workImage = []
+        }
+
         res.status(200).send(list)
     }
     catch(e){
@@ -118,6 +123,10 @@ router.get('/orders/:cycle',auth, async (req,res)=>{
 
             return false;
         })
+
+        for( let i=0; i<upcomingOrders.length; i++ ) {
+            upcomingOrders[i].workImage = []
+        }
 
         res.status(200).send(upcomingOrders)
     }

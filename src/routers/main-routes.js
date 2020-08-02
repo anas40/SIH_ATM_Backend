@@ -58,13 +58,23 @@ router.post('/login', async (req, res) => {
                 }
             }
             catch (e) {
-                res.status(400).send()
+                res.status(400).send({typeofUser: req.user })
             }
         }
     } 
     catch(e){
         res.status(401).send('Failed to login')
     }    
+})
+
+// get type of user...
+router.get('/typeofuser', auth, async (req,res) => {
+    try{
+        res.status(200).send({typeofUser: req.type})
+    }
+    catch(e){
+        res.status(404).send('Failed to get type of user')
+    }
 })
 
 
@@ -92,11 +102,14 @@ router.get('/engineerOrders', auth, async(req, res) => {
     
     try {
         const engineer = req.user
-       
         await engineer.populate('orders').execPopulate()
         
          // array of orders assigned to engineer..
         const ordersAssignedToEngineer = engineer.orders
+
+        for( let i=0; i<ordersAssignedToEngineer.length; i++ ) {
+            ordersAssignedToEngineer[i].workImage = []
+        }
 
         const assignedOrders = {
             heading: 'Assigned',
@@ -141,10 +154,15 @@ router.get('/employeeOrders', auth, async (req, res) => {
 
         // orders assigned by employee..
         const ordersAssignedByEmployee = employee.orders
+        const unassignedOrders = await Order.find({employeeStatus: 'unassigned', engineerStatus: 'unassigned'})
+
+        for( let i=0; i<ordersAssignedByEmployee.length; i++ ) {
+            ordersAssignedByEmployee[i].workImage = []
+        }
 
         const todoOrders = {
             heading: 'Todo',
-            orders: await Order.find({employeeStatus: 'unassigned', engineerStatus: 'unassigned'})
+            orders: unassignedOrders
         }
 
         const progressOrders = {
@@ -248,6 +266,10 @@ router.post('/searchorders', auth , async (req,res) => {
         
         // find all orders after applying filter options..
         const orders = await Order.find(filterOptions)
+
+        for( let i=0; i<orders.length; i++ ) {
+            orders[i].workImage = []
+        }
 
         res.status(200).send(orders)
     }   

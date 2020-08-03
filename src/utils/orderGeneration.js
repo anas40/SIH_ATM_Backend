@@ -15,7 +15,7 @@ var num = 2231
 const orderGeneration = async()=>{
 
     //runs every 10 second
-    cron.schedule('*/10 * * * * *', async ()=>{
+    cron.schedule('*/50 * * * * *', async ()=>{
         // fetch list of all equipments...
         const equipments = await Equipment.find()
 
@@ -73,7 +73,7 @@ const orderGeneration = async()=>{
     })
 
     // cron scheduler for detecting deadline of equipments...
-    cron.schedule('*/10 * * * * *', async () => {
+    cron.schedule('* */50 * * * *', async () => {
         const orders = await Order.find()
 
         for(let i=0; i<orders.length; i++) {
@@ -84,9 +84,9 @@ const orderGeneration = async()=>{
             if(tspan.totalDays() < 0 && orders[i].mailedAlert=="No" && orders[i].engineerStatus!="completed"){
                 sendMessage('anasbeg50@gmail.com', 'One day left for maintenance work to be completed',
                             'Please get the maintenance work completed. Only one day to go before deadline')
-                sendSMS('+916265692813', 'Please get the maintenance work completed. Only one day to go before deadline')
-                sendWhatsappMessage('+916265692813', 'Please get the maintenance work completed. Only one day to go before deadline')
-                // orders[i].mailedAlert = "Yes"
+                sendSMS('+919835555474', 'Please get the maintenance work completed. Only one day to go before deadline')
+                sendWhatsappMessage('+919835555474', 'Please get the maintenance work completed. Only one day to go before deadline')
+                orders[i].mailedAlert = "Yes"
                 await orders[i].save()
             }
         }
